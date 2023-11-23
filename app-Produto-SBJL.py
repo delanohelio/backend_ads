@@ -41,5 +41,12 @@ def Solid_Waste():
     return data
 
 
+@app.route('/Chat_comments',methods=['GET'])
+def Chat_comments():
+    data = {
+        
+    }
+    return data
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0')
