@@ -1,5 +1,7 @@
-from flask import Flask
+from flask import Flask, request, jsonify
 from flask_cors import CORS
+import pandas as pd
+import json
 
 
 app = Flask(__name__)
@@ -10,7 +12,7 @@ def OK():
     return 'OK'
 
 
-@app.route('/City_Sewer', methods=['GET'])
+@app.route('/City-Sewer', methods=['GET'])
 def City_Sewer():
     data = {
         "introduction": "No cenário contemporâneo, a gestão eficiente dos recursos naturais tornou-se imperativa para o desenvolvimento sustentável das comunidades. Nesse contexto, o Projeto de Tratamento de Esgoto da Cidade emerge como uma iniciativa visionária que não apenas aborda as crescentes preocupações ambientais, mas também promove uma transformação significativa na qualidade de vida dos habitantes locais. Ao implementar um sistema de tratamento de esgoto inovador, este projeto representa um marco crucial na busca por soluções ambientais e destaca-se como um exemplo inspirador de como a engenhosidade humana pode ser canalizada para promover a harmonia entre a urbanização e a preservação do meio ambiente.",
@@ -19,7 +21,7 @@ def City_Sewer():
         "conclusion": "Em suma, o Projeto de Tratamento de Esgoto da Cidade é um exemplo eloquente de como a inovação e o comprometimento podem convergir para resolver desafios ambientais complexos. Ao transformar a maneira como a cidade lida com o esgoto, não apenas mitigamos os danos causados à natureza, mas também pavimentamos o caminho para uma comunidade mais resiliente e voltada para o futuro. Os benefícios tangíveis desse projeto não só ressoam nos rios agora mais limpos, mas ecoam na qualidade de vida aprimorada, na promoção da sustentabilidade e no legado de uma cidade que escolheu cuidar de seu meio ambiente para as gerações futuras."}
     return data
 
-@app.route('/Water_Responsible', methods=['GET'])
+@app.route('/Water-Responsible', methods=['GET'])
 def Water_Responsible():
     data = {
         "introduction": "A Campanha de Conscientização sobre o Uso Responsável da Água surge como uma resposta proativa a uma das questões mais cruciais da contemporaneidade: a gestão sustentável dos recursos hídricos. Em consonância com a crença de nossa empresa de que a conscientização é o ponto de partida para transformações positivas, essa iniciativa foi concebida com o propósito de educar e engajar a comunidade na preservação responsável da água. Ao longo da campanha, uma série de eventos educacionais, workshops e iniciativas de sensibilização pública foram realizados, todos com o objetivo de destacar a importância da água e fomentar práticas conscientes de uso. A comunidade respondeu de maneira extraordinária, evidenciando uma redução notável no desperdício de água e uma crescente conscientização acerca da necessidade premente de proteger esse recurso vital para as gerações futuras.",
@@ -30,7 +32,7 @@ def Water_Responsible():
     return data
 
 
-@app.route('/Solid_Waste', methods=['GET'])
+@app.route('/Solid-Waste', methods=['GET'])
 def Solid_Waste():
     data = {
         "introduction": "No contexto atual, o aumento exponencial da produção de resíduos sólidos representa um desafio ambiental significativo. Em resposta a essa urgência, nosso projeto de Coleta Seletiva de Resíduos Sólidos surge como uma iniciativa proativa e eficaz para abordar a questão premente dos resíduos, visando não apenas a redução do impacto ambiental, mas também a promoção de uma gestão mais consciente e sustentável dos recursos. Ao implementar um programa abrangente de coleta seletiva, focado na separação de materiais recicláveis e resíduos orgânicos, buscamos ativamente transformar a maneira como encaramos e lidamos com o ciclo de vida dos materiais descartados.",
@@ -41,12 +43,45 @@ def Solid_Waste():
     return data
 
 
-@app.route('/Chat_comments',methods=['GET'])
-def Chat_comments():
-    data = {
-        
-    }
-    return data
+
+comentarios_list = []
+
+@app.route('/Send-data', methods=['POST'])
+def send_data():
+    try:
+        if request.is_json:
+            data = request.get_json()
+            persist_data(data) 
+            response = {"message": "Dados recebidos e salvos com sucesso"}
+            return jsonify(response), 200
+        else:
+            return jsonify({"error": "A solicitação deve conter dados JSON"}), 400
+    except Exception as e:
+        print(f"Erro interno: {e}")
+        return jsonify({"error": "Erro interno no servidor"}), 500
+
+def persist_data(comment):
+    if not isinstance(comment, dict) or 'nome' not in comment or 'comentario' not in comment:
+        print("Erro: O comentário fornecido não está no formato esperado.")
+        return
+    comentarios_list.append({"nome": comment['nome'], "comentario": comment['comentario']})
+
+
+@app.route('/Get-comments', methods=['GET'])
+def get_comments():
+    try:
+        comentarios = get_comments_lista()       
+        resposta = {"comentarios": comentarios}
+        return jsonify(resposta), 200
+    except Exception as e:
+        print(f"Erro interno: {e}")
+        return jsonify({"erro": "Erro interno no servidor"}), 500
+
+def get_comments_lista():
+    return comentarios_list
+
+
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0')
