@@ -90,51 +90,22 @@ def adicionar_comentario():
         return jsonify({"error": "Erro interno no servidor"}), 500
 
 
+dados_do_formulario_lista=[]
 
-
-
-
-@app.route('/Get-commentsCitySewer', methods=['GET'])
-def get_comments_city_sewer():
+@app.route('/enviarFormulario', methods=['POST'])
+def enviarFormulario():
     try:
-        comentarios = get_comments_listaCitySewer()       
-        resposta = {"comentarios": comentarios}
-        return jsonify(resposta), 200
+        dados_do_formulario = request.get_json()
+        dados_do_formulario_lista.append(dados_do_formulario)
+
+        print("Lista de dados do formulário:")
+        print(dados_do_formulario_lista)
+
+        return jsonify({"message": "Dados do formulário recebidos com sucesso!"}), 200
+
     except Exception as e:
         print(f"Erro interno: {e}")
-        return jsonify({"erro": "Erro interno no servidor"}), 500
-
-@app.route('/Get-commentsWaterResponsible', methods=['GET'])
-def get_comments_water_responsible():
-    try:
-        comentarios = get_comments_listaWaterResponsible()       
-        resposta = {"comentarios": comentarios}
-        return jsonify(resposta), 200
-    except Exception as e:
-        print(f"Erro interno: {e}")
-        return jsonify({"erro": "Erro interno no servidor"}), 500
-
-@app.route('/Get-commentsSolidWaste', methods=['GET'])
-def get_comments_solid_waste():
-    try:
-        comentarios = get_comments_listaSolidWaste()       
-        resposta = {"comentarios": comentarios}
-        return jsonify(resposta), 200
-    except Exception as e:
-        print(f"Erro interno: {e}")
-        return jsonify({"erro": "Erro interno no servidor"}), 500
+        return jsonify({"error": "Erro interno no servidor"}), 500
     
-
-
-def get_comments_listaCitySewer():
-    return comentarios_listCitySewer
-
-def get_comments_listaWaterResponsible():
-    return comentarios_listWaterResponsible
-
-def get_comments_listaSolidWaste():
-    return comentarios_listSolidWaste
-
-
 if __name__ == '__main__':
     app.run(host='0.0.0.0')
