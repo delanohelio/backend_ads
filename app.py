@@ -1,13 +1,15 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import random
+from datetime import datetime
+import project_terapias
+from produto_SBJL import projetos, dados_do_formulario_lista
+import project_smart_city
 
 app = Flask(__name__)
 CORS(app)
 app.json.ensure_ascii = False
 
-import project_terapias
-from produto_SBJL import projetos, dados_do_formulario_lista
 
 @app.route('/')
 def OK():
@@ -67,6 +69,32 @@ def add_terapia_depoimento():
         print(f"Erro interno: {e}")
         return jsonify({"error": "Erro interno no servidor"}), 500
 
+############# Smart City ################
+@app.route('/smart_city', methods=['GET'])
+def get_smart_city_depoimentos():
+    return project_smart_city.projects_comments
+
+@app.route('/smart_city', methods=['POST'])
+def add_smart_city_depoimentos():
+    try:
+        depoimento = request.get_json()
+        project = depoimento.get('project')
+        if (project in project_smart_city.projects_comments):
+            depoimentos = project_smart_city.projects_comments[project]
+            depoimentos.append(
+                {
+                    "name": depoimento.get("name"),
+                    "time": datetime.now(),
+                    "text": depoimento.get("text")
+                }
+            )
+            return "Depoimento adicionado com sucesso"
+        else:
+            return jsonify({"error": "nao existe esse projeto"}), 400
+    except Exception as e:
+        print(f"Erro interno: {e}")
+        return jsonify({"error": "Erro interno no servidor"}), 500
+
 ############# Projeto SBJL ################
 @app.route('/paginaProjeto/<index>', methods=['GET'])
 def projeto(index):
@@ -116,6 +144,7 @@ def enviarFormulario():
     except Exception as e:
         print(f"Erro interno: {e}")
         return jsonify({"error": "Erro interno no servidor"}), 500
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0')
